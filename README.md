@@ -1,0 +1,1 @@
+Contiene todo el código necesario para la parte de backend del grupo GEMALTO DREAM TEAM.
