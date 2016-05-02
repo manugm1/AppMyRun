@@ -20,23 +20,49 @@ public class UserController {
     }
 
 
-    @RequestMapping("/create")
+    @RequestMapping("/registroUsuario")
     @ResponseBody
-    public Iterable<User> create(String email, String name) {
+    public Mensaje create(String email, String pass) {
         User user = null;
+        Mensaje mens=new Mensaje(400, "Error en los parámetros");
         ArrayList<User> usuarios=new ArrayList<User>();
+        boolean existe=false;
         try {
-            user = new User(email, name);
+
             Iterable<User> users=userDao.findAll();
             usuarios=(ArrayList<User>)(users);
-            userDao.save(user);
+            for(int i=0;i< usuarios.size();i++)
+            {
+                if(email.equals(usuarios.get(i).getEmail()))
+                {
+                    existe=true;
+                }
+            }
+
+            if(!existe) {
+                user = new User(email, pass);
+                user.setActivo(1);
+                userDao.save(user);
+                mens.setCodigo(200);
+                mens.setInfo("Registro correcto");
+                System.out.println("No existe");
+            }
+            else
+            {
+                mens.setCodigo(401);
+                mens.setInfo("Usuario existente");
+                System.out.println("Existe");
+            }
 
         }
         catch (Exception ex) {
             System.out.println(ex.getMessage());
+
         }
-        return usuarios;
+        return mens;
     }
+
+
 
     @Autowired
     private UserDao userDao;
