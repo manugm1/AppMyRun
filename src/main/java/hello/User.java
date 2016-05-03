@@ -3,12 +3,16 @@ package hello;
 /**
  * Created by Javier on 21/04/2016.
  */
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+import java.sql.Time;
+import java.sql.Timestamp;
 import java.util.Date;
 
 /**
@@ -47,14 +51,49 @@ public class User {
     private Float peso;
     private Integer estatura;
 
-    private Date fecNacimiento;
+    //@DateTimeFormat(pattern="dd/MM/yyyy")
+    private Timestamp fecNacimiento;
 
 
-    private String codPostal;
-
-    private Integer tipo;
+    private String codpostal;
+    //1 hombre --  2 mujer
+    private Integer sexo;
     private Integer activo;
     private Integer nivel;
+
+
+
+
+    // ------------------------
+    // PUBLIC METHODS
+    // ------------------------
+
+    public User() { }
+
+
+
+    public User(String email, String password, String nombre, String apellido1,String apellido2, Timestamp fecNacimiento, Integer sexo) {
+        this.email = email;
+        this.password = password;
+        this.nombre=nombre;
+        this.apellido1=apellido1;
+        this.apellido2=apellido2;
+        this.fecNacimiento=fecNacimiento;
+        this.sexo=sexo;
+
+
+    }
+
+    // Getter and setter methods
+
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String value) {
+        this.email = value;
+    }
 
     public String getPassword() {
         return password;
@@ -96,78 +135,51 @@ public class User {
         this.nick = nick;
     }
 
-
-
-    public Date getFecNacimiento() {
+    public Timestamp getFecNacimiento() {
         return fecNacimiento;
     }
+
+    public void setFecNacimiento(Timestamp fecNacimiento) {
+        this.fecNacimiento = fecNacimiento;
+    }
+
+    public Float getPeso(){return peso;}
 
     public void setPeso(Float peso) {
         this.peso = peso;
     }
 
+    public Integer getEstatura(){ return estatura;    }
+
     public void setEstatura(Integer estatura) {
         this.estatura = estatura;
     }
+
+    public Integer getActivo() { return activo;}
 
     public void setActivo(Integer activo) {
         this.activo = activo;
     }
 
+    public Integer getNivel(){ return nivel;}
+
     public void setNivel(Integer nivel) {
         this.nivel = nivel;
     }
 
-    public void setFecNacimiento(Date fecNacimiento) {
-        this.fecNacimiento = fecNacimiento;
-    }
-
     public String getCodPostal() {
-        return codPostal;
+        return codpostal;
     }
 
-    public void setCodPostal(String codPostal) {
-        this.codPostal = codPostal;
+    public void setCodPostal(String codpostal) {
+        this.codpostal = codpostal;
     }
 
+    public Integer getSexo(){ return sexo;}
 
-    public void setTipo(Integer tipo) {
-        this.tipo = tipo;
+    public void setSexo(Integer sexo) {
+        this.sexo = sexo;
     }
-
-    public Integer getActivo() {
-        return activo;
-    }
-
-
-
-
-    // ------------------------
-    // PUBLIC METHODS
-    // ------------------------
-
-    public User() { }
-
-
-
-    public User(String email, String password) {
-        this.email = email;
-        this.password = password;
-
-
-    }
-
-    // Getter and setter methods
-
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String value) {
-        this.email = value;
-    }
-
 
 
 } // class User

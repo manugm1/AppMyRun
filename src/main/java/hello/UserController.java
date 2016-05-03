@@ -1,13 +1,15 @@
 package hello;
 
+import java.sql.Timestamp;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+
+import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
-import org.springframework.web.bind.annotation.ResponseBody;
 @RestController
 public class UserController {
 
@@ -22,15 +24,26 @@ public class UserController {
 
     @RequestMapping("/registroUsuario")
     @ResponseBody
-    public Mensaje create(String email, String pass) {
+    public Mensaje create(String email, String password, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo) {
         User user = null;
         Mensaje mens=new Mensaje(400, "Error en los parámetros");
+        Date auxFecha=new Date();
+
+        //SimpleDateFormat formatFecha = new SimpleDateFormat("dd/MM/yyyy");
+        /*try{
+            auxFecha.formatFecha.parse(fecNacimiento);
+        }
+        catch(ParseException ex){
+           return mens;
+        }*/
         ArrayList<User> usuarios=new ArrayList<User>();
         boolean existe=false;
         try {
 
             Iterable<User> users=userDao.findAll();
             usuarios=(ArrayList<User>)(users);
+
+
             for(int i=0;i< usuarios.size();i++)
             {
                 if(email.equals(usuarios.get(i).getEmail()))
@@ -40,7 +53,7 @@ public class UserController {
             }
 
             if(!existe) {
-                user = new User(email, pass);
+                user = new User(email,password, nombre, apellido1,apellido2, fecNacimiento, sexo);
                 user.setActivo(1);
                 userDao.save(user);
                 mens.setCodigo(200);
@@ -56,6 +69,7 @@ public class UserController {
 
         }
         catch (Exception ex) {
+            System.out.println("Salta excepción");
             System.out.println(ex.getMessage());
 
         }
