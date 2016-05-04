@@ -6,10 +6,16 @@ package hello.lib;
 public class Mensaje {
     private Integer codigo;
     private String info;
+    private Object infoObj;
 
     public Mensaje(Integer codigo, String info) {
         this.codigo = codigo;
         this.info = info;
+    }
+
+    public Mensaje(Integer codigo, Object info){
+        this.codigo = codigo;
+        this.infoObj = info;
     }
 
     public Integer getCodigo() {
@@ -26,5 +32,13 @@ public class Mensaje {
 
     public void setInfo(String info) {
         this.info = info;
+    }
+
+    public Object getInfoObj() {
+        return infoObj;
+    }
+
+    public void setInfoObj(Object infoObj) {
+        this.infoObj = infoObj;
     }
 }
