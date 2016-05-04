@@ -1,4 +1,4 @@
-package hello;
+package hello.lib;
 
 /**
  * Created by AdelZB on 02/05/2016.

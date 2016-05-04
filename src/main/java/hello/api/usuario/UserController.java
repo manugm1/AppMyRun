@@ -1,16 +1,16 @@
-package hello;
+package hello.api.usuario;
 
 import java.sql.Timestamp;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
+import hello.lib.Mensaje;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
 @RestController
+@RequestMapping("/api/usuario")
 public class UserController {
 
     private static final String template = "Hello, %s!";

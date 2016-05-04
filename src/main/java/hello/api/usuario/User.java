@@ -1,22 +1,16 @@
-package hello;
-
+package hello.api.usuario;
 /**
  * Created by Javier on 21/04/2016.
  */
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
-import java.sql.Time;
 import java.sql.Timestamp;
-import java.util.Date;
 
 /**
- * An entity User composed by three fields (id, email, name).
+ * An entity backend.hello.api.usuario.User composed by three fields (id, email, name).
  * The Entity annotation indicates that this class is a JPA entity.
  * The Table annotation specifies the name for the table in the db.
  *
@@ -182,4 +176,4 @@ public class User {
     }
 
 
-} // class User
+} // class backend.hello.api.usuario.User
