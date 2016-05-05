@@ -13,7 +13,7 @@ public class PuntoRuta
     private RutaHasPunto pk = new RutaHasPunto();
 
     @EmbeddedId
-    private RutaHasPunto  getPk()
+    public RutaHasPunto  getPk()
     {
     return pk;
     }
@@ -21,5 +21,10 @@ public class PuntoRuta
     public void setPk(final RutaHasPunto  pk)
     {
     this.pk = pk;
+    }
+
+    public PuntoRuta()
+    {
+
     }
 }

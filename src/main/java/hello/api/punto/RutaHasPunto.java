@@ -42,4 +42,9 @@ public class RutaHasPunto implements Serializable
             this.punto = punto;
         }
 
+    public RutaHasPunto()
+    {
+
+    }
+
 }

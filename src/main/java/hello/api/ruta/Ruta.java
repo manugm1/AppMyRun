@@ -1,6 +1,9 @@
 package hello.api.ruta;
 
+import hello.api.punto.Punto;
+
 import javax.persistence.*;
+import java.util.List;
 
 /**
  * Clase modelo de ruta
@@ -18,6 +21,9 @@ public class Ruta {
     private String descripcion;
     private int tipo;
     private String fk_usuario;
+
+
+
 
     public Ruta(){
 

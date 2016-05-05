@@ -34,6 +34,11 @@ public class Punto {
         this.coordx = coordx;
     }
 
+    public Punto()
+    {
+
+    }
+
     public Punto(Float coordx, Float coordy, String nombre, String foto, String descripcion) {
 
         this.coordx = coordx;

@@ -10,6 +10,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
 
@@ -71,6 +74,40 @@ public class PuntoController
 
 
         return mens;
+    }
+
+    @RequestMapping(value = "/devolverPuntos")
+    @ResponseBody
+    public ArrayList<Punto> devolver(Integer idRuta)
+    {
+
+
+        ArrayList<Punto> puntos=new ArrayList<Punto>();
+
+        ArrayList<PuntoRuta> pr=(ArrayList)puntoRutaDao.findAll();
+
+       // List<Punto> puntos=ruta.getPuntos();
+
+
+        for(int i=0;i<pr.size();i++)
+        {
+            int idr=pr.get(i).getPk().getRuta().getId();
+            int idp=pr.get(i).getPk().getPunto().getId();
+
+            if(idr==idRuta)
+            {
+                Float coordx=puntoDao.findOne(idp).getCoordx();
+                Float coordy=puntoDao.findOne(idp).getCoordy();
+                String nombre=puntoDao.findOne(idp).getNombre();
+                String foto=puntoDao.findOne(idp).getFoto();
+                String descripcion=puntoDao.findOne(idp).getDescripcion();
+                Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
+                punto.setId(idp);
+                puntos.add(punto);
+            }
+        }
+
+        return puntos;
     }
 
     @Autowired
