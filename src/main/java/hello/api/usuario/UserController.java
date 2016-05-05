@@ -13,58 +13,32 @@ import org.springframework.beans.factory.annotation.Autowired;
 @RequestMapping("/api/usuario")
 public class UserController {
 
-    private static final String template = "Hello, %s!";
-    private final AtomicLong counter = new AtomicLong();
-
-    @RequestMapping("/greeting")
-    public Greeting greeting(@RequestParam(value="name", defaultValue="World") String name) {
-        return new Greeting(2,"Bienvenido "+ name);
-    }
+    @Autowired
+    private UserService service;
 
 
-    @RequestMapping("/registroUsuario")
-    @ResponseBody
+    @RequestMapping(value="/registroUsuario",method=RequestMethod.POST )
+
     public Mensaje create(String email, String password, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo) {
+
         User user = null;
-        Mensaje mens=new Mensaje(400, "Error en los parámetros");
-        Date auxFecha=new Date();
+        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+        boolean existe;
 
-        //SimpleDateFormat formatFecha = new SimpleDateFormat("dd/MM/yyyy");
-        /*try{
-            auxFecha.formatFecha.parse(fecNacimiento);
-        }
-        catch(ParseException ex){
-           return mens;
-        }*/
-        ArrayList<User> usuarios=new ArrayList<User>();
-        boolean existe=false;
         try {
-
-            Iterable<User> users=userDao.findAll();
-            usuarios=(ArrayList<User>)(users);
-
-
-            for(int i=0;i< usuarios.size();i++)
-            {
-                if(email.equals(usuarios.get(i).getEmail()))
-                {
-                    existe=true;
-                }
-            }
+            existe=service.exists(email);
 
             if(!existe) {
                 user = new User(email,password, nombre, apellido1,apellido2, fecNacimiento, sexo);
                 user.setActivo(1);
-                userDao.save(user);
+                service.save(user);
                 mens.setCodigo(200);
                 mens.setInfo("Registro correcto");
-                System.out.println("No existe");
             }
             else
             {
                 mens.setCodigo(401);
                 mens.setInfo("Usuario existente");
-                System.out.println("Existe");
             }
 
         }
@@ -76,8 +50,121 @@ public class UserController {
         return mens;
     }
 
+    @RequestMapping(value="/loginUsuario",method=RequestMethod.POST)
+
+    public Mensaje login(String email, String password){
+
+        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+        try {
+            boolean existe = service.verifyUser(email, password);
+
+            if (existe) {
+                if (service.activeUser(email,password)) {
+                    mens.setCodigo(200);
+                    mens.setInfo("Login correcto");
+                }
+                else{
+                    User user=service.findOne(email);
+                    user.setActivo(1);
+                    service.save(user);
+                    mens.setCodigo(200);
+                    mens.setInfo("Usuario inactivo vuelve a activarse");
+                }
+            } else {
+                mens.setCodigo(401);
+                mens.setInfo("El usuario o contraseña no es correcto");
+            }
+        }catch (Exception ex){
+            return mens;
+        }
+
+        return mens;
+
+    }
+
+    @RequestMapping(value="/modificaUsuario",method=RequestMethod.PUT )
+
+    public Mensaje modify(String email, String passactual, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo, String nick, Float peso, Integer estatura, String codpostal,Integer nivel , String passnew) {
+
+        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+        boolean existe;
+
+        try {
+            existe=service.verifyUser(email,passactual);
+
+            if(existe) {
+                if(service.activeUser(email,passactual)){
+                        User user=service.findOne(email);
+                        if (passnew != null && !(passnew.equals(passactual)))
+                            user.setPassword(passnew);
+                        if (nombre != null)
+                            user.setNombre(nombre);
+                        if (apellido1 != null)
+                            user.setApellido1(apellido1);
+                        if (apellido2 != null)
+                            user.setApellido2(apellido2);
+                        if (fecNacimiento != null)
+                            user.setFecNacimiento(fecNacimiento);
+                        if (sexo != null)
+                            user.setSexo(sexo);
+                        if (nick != null)
+                            user.setNick(nick);
+                        if (peso != null)
+                            user.setPeso(peso);
+                        if (estatura != null)
+                            user.setEstatura(estatura);
+                        if (codpostal != null)
+                            user.setCodPostal(codpostal);
+                        if (nivel != null)
+                            user.setNivel(nivel);
+                        service.save(user);
+                        mens.setCodigo(200);
+                        mens.setInfo("Modificaciones realizadas correctamente");
+
+                }
+                else{
+                    mens.setCodigo(401);
+                    mens.setInfo("Imposible modificar usuario inactivo");
+                }
+            }
+            else
+            {
+                mens.setCodigo(401);
+                mens.setInfo("El usuario o contraseña no es correcto");
+            }
+
+        }
+        catch (Exception ex) {
+            return mens;
+
+        }
+        return mens;
+    }
+
+    @RequestMapping(value="/darBaja",method=RequestMethod.PUT)
+
+    public Mensaje baja(String email, String password){
+        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+        try {
+            boolean existe = service.verifyUser(email, password);
+
+            if (existe) {
+                User user=service.findOne(email);
+                user.setActivo(0);
+                service.save(user);
+                mens.setCodigo(200);
+                mens.setInfo("Usuario deshabilitado correctamente");
+            } else {
+                mens.setCodigo(401);
+                mens.setInfo("El usuario o contraseña no es correcto");
+            }
+        }catch (Exception ex){
+            return mens;
+        }
+
+        return mens;
+
+    }
 
 
-    @Autowired
-    private UserDao userDao;
 }

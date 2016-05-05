@@ -50,7 +50,7 @@ public class User {
 
 
     private String codpostal;
-    //1 hombre --  2 mujer
+    //0 hombre --  1 mujer
     private Integer sexo;
     private Integer activo;
     private Integer nivel;
@@ -63,6 +63,22 @@ public class User {
     // ------------------------
 
     public User() { }
+
+    public User(User usu){
+        this.email=usu.email;
+        this.password=usu.password;
+        this.nombre=usu.nombre;
+        this.apellido1=usu.apellido1;
+        this.apellido2=usu.apellido2;
+        this.nick=usu.nick;
+        this.peso=usu.peso;
+        this.estatura=usu.estatura;
+        this.fecNacimiento=usu.fecNacimiento;
+        this.codpostal=usu.codpostal;
+        this.sexo=usu.sexo;
+        this.activo=usu.activo;
+        this.nivel=usu.nivel;
+    }
 
 
 

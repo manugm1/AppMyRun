@@ -15,7 +15,7 @@ import org.springframework.data.repository.CrudRepository;
  * @author netgloo
  */
 @Transactional
-public interface UserDao extends CrudRepository<User, String> {
+public interface UserRepository extends CrudRepository<User, String> {
 
     /**
      * Return the user having the passed email or null if no user is found.
@@ -24,4 +24,4 @@ public interface UserDao extends CrudRepository<User, String> {
      */
 
 
-} // class backend.hello.api.usuario.UserDao
+} // class backend.hello.api.usuario.UserRepository
