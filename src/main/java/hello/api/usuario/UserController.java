@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
 import hello.lib.Mensaje;
+import hello.lib.Validaciones;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -23,29 +24,34 @@ public class UserController {
 
         User user = null;
         Mensaje mens=new Mensaje(401, "Error en los parámetros");
-        boolean existe;
+        boolean existe,valido;
+        Validaciones val=new Validaciones();
 
-        try {
-            existe=service.exists(email);
+        if(val.validaEmail(email)) {
 
-            if(!existe) {
-                user = new User(email,password, nombre, apellido1,apellido2, fecNacimiento, sexo);
-                user.setActivo(1);
-                service.save(user);
-                mens.setCodigo(200);
-                mens.setInfo("Registro correcto");
+            try {
+                existe = service.exists(email);
+
+                if (!existe) {
+                    user = new User(email, password, nombre, apellido1, apellido2, fecNacimiento, sexo);
+                    user.setActivo(1);
+                    service.save(user);
+                    mens.setCodigo(200);
+                    mens.setInfo("Registro correcto");
+                } else {
+                    mens.setCodigo(401);
+                    mens.setInfo("Usuario existente");
+                }
+
+            } catch (Exception ex) {
+                System.out.println("Salta excepción");
+                System.out.println(ex.getMessage());
+
             }
-            else
-            {
-                mens.setCodigo(401);
-                mens.setInfo("Usuario existente");
-            }
-
         }
-        catch (Exception ex) {
-            System.out.println("Salta excepción");
-            System.out.println(ex.getMessage());
-
+        else{
+            mens.setCodigo(401);
+            mens.setInfo("Error. Email no valido");
         }
         return mens;
     }
