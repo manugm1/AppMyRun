@@ -5,17 +5,11 @@ package hello.lib;
  */
 public class Mensaje {
     private Integer codigo;
-    private String info;
-    private Object infoObj;
-
-    public Mensaje(Integer codigo, String info) {
-        this.codigo = codigo;
-        this.info = info;
-    }
+    private Object info;
 
     public Mensaje(Integer codigo, Object info){
         this.codigo = codigo;
-        this.infoObj = info;
+        this.info = info;
     }
 
     public Integer getCodigo() {
@@ -26,19 +20,12 @@ public class Mensaje {
         this.codigo = codigo;
     }
 
-    public String getInfo() {
+    public Object getInfo() {
         return info;
     }
 
-    public void setInfo(String info) {
+    public void setInfo(Object info) {
         this.info = info;
     }
 
-    public Object getInfoObj() {
-        return infoObj;
-    }
-
-    public void setInfoObj(Object infoObj) {
-        this.infoObj = infoObj;
-    }
 }

@@ -1,6 +1,9 @@
 package hello.api.ruta;
 
 import hello.api.punto.Punto;
+import hello.api.punto.PuntoRuta;
+import hello.api.punto.RutaHasPunto;
+import hello.api.usuario.User;
 
 import javax.persistence.*;
 import java.util.List;
@@ -20,8 +23,8 @@ public class Ruta {
     private int popularidad;
     private String descripcion;
     private int tipo;
+    private String fk_poblacion;
     private String fk_usuario;
-
 
 
 
@@ -29,13 +32,14 @@ public class Ruta {
 
     }
 
-    public Ruta(int id, String nombre, int dificultad, int popularidad, String descripcion, int tipo, String fk_usuario) {
+    public Ruta(int id, String nombre, int dificultad, int popularidad, String descripcion, int tipo, String fk_poblacion, String fk_usuario) {
         this.id = id;
         this.nombre = nombre;
         this.dificultad = dificultad;
         this.popularidad = popularidad;
         this.descripcion = descripcion;
         this.tipo = tipo;
+        this.setFk_poblacion(fk_poblacion);
         this.fk_usuario = fk_usuario;
     }
 
@@ -85,6 +89,14 @@ public class Ruta {
 
     public void setTipo(int tipo) {
         this.tipo = tipo;
+    }
+
+    public String getFk_poblacion() {
+        return fk_poblacion;
+    }
+
+    public void setFk_poblacion(String fk_poblacion) {
+        this.fk_poblacion = fk_poblacion;
     }
 
     public String getFk_usuario() {

@@ -3,7 +3,7 @@ package hello.api.punto;
 import hello.api.ruta.Ruta;
 import hello.api.ruta.RutaService;
 import hello.api.usuario.User;
-import hello.api.usuario.UserDao;
+import hello.api.usuario.UserService;
 import hello.lib.Mensaje;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -111,7 +111,7 @@ public class PuntoController
     }
 
     @Autowired
-    private UserDao userDao;
+    private UserService userDao;
 
     @Autowired
     private PuntoDao puntoDao;
