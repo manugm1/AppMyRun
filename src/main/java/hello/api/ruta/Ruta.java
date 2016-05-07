@@ -27,7 +27,6 @@ public class Ruta {
     private String fk_usuario;
 
 
-
     public Ruta(){
 
     }

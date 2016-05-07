@@ -1,5 +1,6 @@
 package hello.api.punto;
 
+import hello.api.exceptions.UnauthorizedException;
 import hello.api.ruta.Ruta;
 import hello.api.ruta.RutaService;
 import hello.api.usuario.User;
@@ -26,8 +27,7 @@ public class PuntoController
 
     @RequestMapping(value = "/asignarPuntos",method = POST)
     @ResponseBody
-    public Mensaje asignar(Integer idRuta, String nombre, String descripcion, String foto, Float coordx, Float coordy, String email, String password)
-    {
+    public Mensaje asignar(Integer idRuta, String nombre, String descripcion, String foto, Float coordx, Float coordy, String email, String password) throws UnauthorizedException {
         Mensaje mens = new Mensaje(400, "Error en los parámetros");
 
 
@@ -58,8 +58,9 @@ public class PuntoController
                 }
                 else
                 {
-                    mens.setInfo("El usuario no es dueño de la Ruta");
-                    mens.setCodigo(402);
+                    throw new UnauthorizedException("Usuario inválido");
+                  //  mens.setInfo("El usuario no es dueño de la Ruta");
+                  //  mens.setCodigo(402);
                 }
             }
             else
@@ -67,9 +68,14 @@ public class PuntoController
                 mens.setInfo("Usuario incorrecto");
                 mens.setCodigo(401);
             }
-        }catch (Exception ex)
+        }catch (UnauthorizedException ex)
         {
-            System.out.println("Salta excepcion");
+            System.out.println("Usuario intentando meter puntos en una ruta que no es suya");
+            throw new UnauthorizedException("Usuario inválido");
+        }
+        catch(Exception ex)
+        {
+            System.out.println("Excepcion genérica: "+ex.getMessage());
         }
 
 
@@ -82,11 +88,8 @@ public class PuntoController
     {
 
 
-        ArrayList<Punto> puntos=new ArrayList<Punto>();
-
         ArrayList<PuntoRuta> pr=(ArrayList)puntoRutaDao.findAll();
-
-       // List<Punto> puntos=ruta.getPuntos();
+        ArrayList<Punto> puntos=new ArrayList<Punto>();
 
 
         for(int i=0;i<pr.size();i++)
