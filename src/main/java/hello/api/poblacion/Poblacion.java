@@ -10,6 +10,7 @@ import javax.persistence.*;
 @Table(name = "poblacion")
 public class Poblacion {
     @Id
+    @Column(name = "cod_postal")
     private String codPostal;
     private String poblacion;
     private String provincia;

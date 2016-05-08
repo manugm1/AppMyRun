@@ -25,6 +25,7 @@ public class RutaService {
      */
     private RutaRepository repository;
 
+    @Autowired
     private PoblacionRepository poblacionRepository;
 
     @Autowired
@@ -128,7 +129,6 @@ public class RutaService {
                     aux.add(ruta);
                 }
             }
-
         }
         return aux;
     }

@@ -22,7 +22,4 @@ public class Validaciones {
 
         return valido;
     }
-
-
-
 }

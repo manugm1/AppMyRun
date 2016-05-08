@@ -38,7 +38,7 @@ public class Ruta {
         this.popularidad = popularidad;
         this.descripcion = descripcion;
         this.tipo = tipo;
-        this.setFk_poblacion(fk_poblacion);
+        this.fk_poblacion = fk_poblacion;
         this.fk_usuario = fk_usuario;
     }
 
