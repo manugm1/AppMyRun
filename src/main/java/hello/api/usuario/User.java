@@ -54,6 +54,7 @@ public class User {
     private Integer sexo;
     private Integer activo;
     private Integer nivel;
+    private Integer tipo;
 
 
 
@@ -191,5 +192,10 @@ public class User {
         this.sexo = sexo;
     }
 
+    public Integer getTipo(){ return tipo;}
+
+    public void setTipo(Integer tipo) {
+        this.tipo = tipo;
+    }
 
 } // class backend.hello.api.usuario.User

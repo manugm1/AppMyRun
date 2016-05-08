@@ -20,7 +20,7 @@ public class UserController {
 
     @RequestMapping(value="/registroUsuario",method=RequestMethod.POST )
 
-    public Mensaje create(String email, String password, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo) {
+    public Mensaje create(String email, String password, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo, Integer tipo) {
 
         User user = null;
         Mensaje mens=new Mensaje(401, "Error en los parámetros");
@@ -35,6 +35,8 @@ public class UserController {
                 if (!existe) {
                     user = new User(email, password, nombre, apellido1, apellido2, fecNacimiento, sexo);
                     user.setActivo(1);
+                    if(tipo!=null)
+                        user.setTipo(tipo);
                     service.save(user);
                     mens.setCodigo(200);
                     mens.setInfo("Registro correcto");
