@@ -5,6 +5,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.concurrent.atomic.AtomicLong;
 
+import hello.api.exceptions.BadRequestException;
+import hello.api.exceptions.OKException;
+import hello.api.exceptions.UnauthorizedException;
 import hello.lib.Mensaje;
 import hello.lib.Validaciones;
 import org.springframework.web.bind.annotation.*;
@@ -19,85 +22,82 @@ public class UserController {
 
 
     @RequestMapping(value="/registroUsuario",method=RequestMethod.POST )
+    @ResponseBody
+    public void create(String email, String password, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo, Integer tipo)
+    throws UnauthorizedException, BadRequestException, OKException{
+        try {
+            User user = null;
+            boolean existe;
+            Validaciones val=new Validaciones();
+            if (val.validaEmail(email)) {
 
-    public Mensaje create(String email, String password, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo, Integer tipo) {
-
-        User user = null;
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-        boolean existe,valido;
-        Validaciones val=new Validaciones();
-
-        if(val.validaEmail(email)) {
-
-            try {
                 existe = service.exists(email);
 
                 if (!existe) {
                     user = new User(email, password, nombre, apellido1, apellido2, fecNacimiento, sexo);
                     user.setActivo(1);
-                    if(tipo!=null)
+                    if (tipo != null)
                         user.setTipo(tipo);
                     service.save(user);
-                    mens.setCodigo(200);
-                    mens.setInfo("Registro correcto");
+                    throw new OKException("Registro correcto.");
                 } else {
-                    mens.setCodigo(401);
-                    mens.setInfo("Usuario existente");
+                    throw new UnauthorizedException("Usuario existente.");
                 }
-
-            } catch (Exception ex) {
-                System.out.println("Salta excepción");
-                System.out.println(ex.getMessage());
-
+            } else {
+                throw new BadRequestException("Error en los parámetros del usuario.");
             }
+        }//Aquí capturamos y enviamos
+        catch(OKException ex){
+            throw new OKException(ex.getMessage());
         }
-        else{
-            mens.setCodigo(401);
-            mens.setInfo("Error. Email no valido");
+        catch(UnauthorizedException ex){
+            throw new UnauthorizedException(ex.getMessage());
         }
-        return mens;
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value="/loginUsuario",method=RequestMethod.POST)
-
-    public Mensaje login(String email, String password){
-
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+    @ResponseBody
+    public void login(String email, String password) throws BadRequestException, OKException {
         try {
             boolean existe = service.verifyUser(email, password);
 
             if (existe) {
                 if (service.activeUser(email,password)) {
-                    mens.setCodigo(200);
-                    mens.setInfo("Login correcto");
+                    throw new OKException("Login correcto.");
                 }
                 else{
                     User user=service.findOne(email);
                     user.setActivo(1);
                     service.save(user);
-                    mens.setCodigo(200);
-                    mens.setInfo("Usuario inactivo vuelve a activarse");
+                    throw new OKException("Usuario inactivo vuelve a activarse.");
                 }
             } else {
-                mens.setCodigo(401);
-                mens.setInfo("El usuario o contraseña no es correcto");
+                throw new BadRequestException("Error en los parámetros del usuario.");
             }
-        }catch (Exception ex){
-            return mens;
+        }catch(OKException ex){
+            throw new OKException(ex.getMessage());
         }
-
-        return mens;
-
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value="/modificaUsuario",method=RequestMethod.PUT )
-
-    public Mensaje modify(String email, String passactual, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo, String nick, Float peso, Integer estatura, String codpostal,Integer nivel , String passnew) {
-
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-        boolean existe;
+    @ResponseBody
+    public void modify(String email, String passactual, String nombre, String apellido1, String apellido2, Timestamp fecNacimiento, Integer sexo, String nick, Float peso, Integer estatura, String codpostal,Integer nivel , String passnew)
+    throws UnauthorizedException, BadRequestException, OKException{
 
         try {
+            boolean existe;
             existe=service.verifyUser(email,passactual);
 
             if(existe) {
@@ -126,33 +126,35 @@ public class UserController {
                         if (nivel != null)
                             user.setNivel(nivel);
                         service.save(user);
-                        mens.setCodigo(200);
-                        mens.setInfo("Modificaciones realizadas correctamente");
-
+                        throw new OKException("Modificaciones realizadas correctamente.");
                 }
                 else{
-                    mens.setCodigo(401);
-                    mens.setInfo("Imposible modificar usuario inactivo");
+                    throw new UnauthorizedException("Imposible modificar usuario inactivo.");
                 }
             }
             else
             {
-                mens.setCodigo(401);
-                mens.setInfo("El usuario o contraseña no es correcto");
+                throw new BadRequestException("Error en los parámetros del usuario.");
             }
-
         }
-        catch (Exception ex) {
-            return mens;
-
+        //Aquí capturamos y enviamos
+        catch(OKException ex){
+            throw new OKException(ex.getMessage());
         }
-        return mens;
+        catch(UnauthorizedException ex){
+            throw new UnauthorizedException(ex.getMessage());
+        }
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value="/darBaja",method=RequestMethod.PUT)
-
-    public Mensaje baja(String email, String password){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+    @ResponseBody
+    public void baja(String email, String password) throws BadRequestException, OKException{
         try {
             boolean existe = service.verifyUser(email, password);
 
@@ -160,18 +162,19 @@ public class UserController {
                 User user=service.findOne(email);
                 user.setActivo(0);
                 service.save(user);
-                mens.setCodigo(200);
-                mens.setInfo("Usuario deshabilitado correctamente");
+                throw new OKException("Usuario deshabilitado correctamente.");
             } else {
-                mens.setCodigo(401);
-                mens.setInfo("El usuario o contraseña no es correcto");
+                throw new BadRequestException("Error en los parámetros del usuario.");
             }
-        }catch (Exception ex){
-            return mens;
+        }catch(OKException ex){
+            throw new OKException(ex.getMessage());
         }
-
-        return mens;
-
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
 

@@ -1,5 +1,7 @@
 package hello.api.punto;
 
+import hello.api.exceptions.BadRequestException;
+import hello.api.exceptions.OKException;
 import hello.api.exceptions.UnauthorizedException;
 import hello.api.ruta.Ruta;
 import hello.api.ruta.RutaService;
@@ -10,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.servlet.mvc.method.annotation.ExceptionHandlerExceptionResolver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +30,15 @@ public class PuntoController
 
     @RequestMapping(value = "/asignarPuntos",method = POST)
     @ResponseBody
-    public Mensaje asignar(Integer idRuta, String nombre, String descripcion, String foto, Float coordx, Float coordy, String email, String password) throws UnauthorizedException {
-        Mensaje mens = new Mensaje(400, "Error en los parámetros");
-
-
-        User usuario= userDao.findOne(email);
-
+    public void asignar(Integer idRuta, String nombre, String descripcion, String foto, Float coordx, Float coordy, String email, String password) throws UnauthorizedException, BadRequestException, OKException {
         try {
+            User usuario = userDao.findOne(email);
             if (usuario.getPassword().equals(password)) {
 
                 Ruta ruta = rutaService.findOne(idRuta);
-                if(ruta.getFk_usuario().equals(email))
-                {
+                if (ruta.getFk_usuario().equals(email)) {
                     Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
                     puntoDao.save(punto);
-
 
                     RutaHasPunto rutahaspunto = new RutaHasPunto();
                     rutahaspunto.setPunto(punto);
@@ -52,65 +49,62 @@ public class PuntoController
 
                     puntoRutaDao.save(pr);
 
-
-                    mens.setInfo("Punto introducido correctamente");
-                    mens.setCodigo(200);
+                    throw new OKException("Punto introducido correctamente.");
+                } else {
+                    throw new UnauthorizedException("El usuario no es dueño de la ruta.");
                 }
-                else
-                {
-                    throw new UnauthorizedException("Usuario inválido");
-                  //  mens.setInfo("El usuario no es dueño de la Ruta");
-                  //  mens.setCodigo(402);
-                }
+            } else {
+                throw new BadRequestException("Error en los parámetros del usuario.");
             }
-            else
-            {
-                mens.setInfo("Usuario incorrecto");
-                mens.setCodigo(401);
-            }
-        }catch (UnauthorizedException ex)
-        {
-            System.out.println("Usuario intentando meter puntos en una ruta que no es suya");
-            throw new UnauthorizedException("Usuario inválido");
         }
-        catch(Exception ex)
-        {
-            System.out.println("Excepcion genérica: "+ex.getMessage());
+        //Aquí capturamos y enviamos
+        catch(OKException ex){
+            throw new OKException(ex.getMessage());
         }
-
-
-        return mens;
+        catch(UnauthorizedException ex){
+            throw new UnauthorizedException(ex.getMessage());
+        }
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        //Para cualquier otra excepción, supondremos que se debe a error de cliente producidos en los parámetros en vez de mostrar
+        //el ex.getMessage() ya que la excepción podría darse por ejemplo si se viola la integridad en los
+        //objetos many to many. Pero esto también es un error provocado en la petición, así nos aseguramos
+        //siempre que el error en la invocación es provocado por el cliente.
+        //Se ignoran errores propios de servidor como el acceso a la base de datos, etc.
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value = "/devolverPuntos")
     @ResponseBody
-    public ArrayList<Punto> devolver(Integer idRuta)
+    public ArrayList<Punto> devolver(Integer idRuta) throws BadRequestException
     {
+        try {
+            ArrayList<PuntoRuta> pr = (ArrayList) puntoRutaDao.findAll();
+            ArrayList<Punto> puntos = new ArrayList<Punto>();
 
+            for (int i = 0; i < pr.size(); i++) {
+                int idr = pr.get(i).getPk().getRuta().getId();
+                int idp = pr.get(i).getPk().getPunto().getId();
 
-        ArrayList<PuntoRuta> pr=(ArrayList)puntoRutaDao.findAll();
-        ArrayList<Punto> puntos=new ArrayList<Punto>();
-
-
-        for(int i=0;i<pr.size();i++)
-        {
-            int idr=pr.get(i).getPk().getRuta().getId();
-            int idp=pr.get(i).getPk().getPunto().getId();
-
-            if(idr==idRuta)
-            {
-                Float coordx=puntoDao.findOne(idp).getCoordx();
-                Float coordy=puntoDao.findOne(idp).getCoordy();
-                String nombre=puntoDao.findOne(idp).getNombre();
-                String foto=puntoDao.findOne(idp).getFoto();
-                String descripcion=puntoDao.findOne(idp).getDescripcion();
-                Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
-                punto.setId(idp);
-                puntos.add(punto);
+                if (idr == idRuta) {
+                    Float coordx = puntoDao.findOne(idp).getCoordx();
+                    Float coordy = puntoDao.findOne(idp).getCoordy();
+                    String nombre = puntoDao.findOne(idp).getNombre();
+                    String foto = puntoDao.findOne(idp).getFoto();
+                    String descripcion = puntoDao.findOne(idp).getDescripcion();
+                    Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
+                    punto.setId(idp);
+                    puntos.add(punto);
+                }
             }
-        }
+            return puntos;
 
-        return puntos;
+        }catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @Autowired

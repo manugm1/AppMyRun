@@ -1,10 +1,19 @@
 package hello.api.ruta;
 
+import hello.api.exceptions.BadRequestException;
+import hello.api.exceptions.OKException;
+import hello.api.exceptions.UnauthorizedException;
+import hello.api.punto.Punto;
+import hello.api.punto.PuntoDao;
+import hello.api.punto.PuntoRuta;
+import hello.api.punto.PuntoRutaDao;
 import hello.api.usuario.UserService;
 import hello.lib.Mensaje;
 import hello.lib.Validaciones;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.ArrayList;
 
 /**
  * Created by manuelgm on 04/05/2016.
@@ -23,14 +32,20 @@ public class RutaController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private PuntoDao puntoDao;
+
+    @Autowired
+    private PuntoRutaDao puntoRutaDao;
+
     /** FUNCIONA
      * A continuación definimos los métodos cara al exterior (accesibles)
      * Pueden ser simples CRUD o una mezcla que requiera más operaciones
      * Para dichas operaciones tenemos al objeto RutaService.
      */
     @RequestMapping(value = "/crearRuta", method = RequestMethod.POST)
-    public Mensaje crear(String email, String password, String nombre, int dificultad, String descripcion, String poblacion, int tipo){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+    @ResponseBody
+    public Integer crear(String email, String password, String nombre, Integer dificultad, String descripcion, String poblacion, Integer tipo) throws UnauthorizedException, BadRequestException{
         boolean existe;
 
         try{
@@ -52,54 +67,86 @@ public class RutaController {
                     //Paso 4 - Invocamos al service
                     service.save(ruta);
                     //En este caso devolvemos la id
-                    mens=new Mensaje(200, ruta.getId());
+                    return ruta.getId();
                 }
                 else{
-                    mens.setCodigo(401);
-                    mens.setInfo("El usuario o contraseña no es correcto");
+                    throw new UnauthorizedException("El usuario o contraseña no es correcto.");
                 }
             }
+            else{
+                throw new BadRequestException("Error en los parámetros del usuario.");
+            }
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }//Aquí capturamos y enviamos
+        catch(UnauthorizedException ex){
+            throw new UnauthorizedException(ex.getMessage());
+        }
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     /**
      * FUNCIONA (FALTA DEVOLVER PUNTOS - PREGUNTAR A CRISTIAN OBJETO AUTO CARGADO)
-     * @param id
+     * @param idRuta
      * @return Mensaje
      */
-    @ResponseBody
+
     @RequestMapping(value = "/devolverRutaCompleta", method = RequestMethod.GET)
-    public Mensaje devolver(int id){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
+    @ResponseBody
+    public Ruta devolver(Integer idRuta) throws BadRequestException{
 
         try{
             //Buscamos la ruta por su id
-            mens = new Mensaje(200, service.findOne(id));
-        }catch(Exception ex) {}
+            Ruta ruta = service.findOne(idRuta);
 
-        return mens;
+            //Buscamos los puntos que tiene (ESTO DEBERÍA SER AUTOCARGADO AL HACER EL findOne)
+            ArrayList<PuntoRuta> pr = (ArrayList) puntoRutaDao.findAll();
+            ArrayList<Punto> puntos = new ArrayList<Punto>();
+
+            for (int i = 0; i < pr.size(); i++) {
+                int idr = pr.get(i).getPk().getRuta().getId();
+                int idp = pr.get(i).getPk().getPunto().getId();
+
+                if (idr == idRuta) {
+                    Float coordx = puntoDao.findOne(idp).getCoordx();
+                    Float coordy = puntoDao.findOne(idp).getCoordy();
+                    String nombre = puntoDao.findOne(idp).getNombre();
+                    String foto = puntoDao.findOne(idp).getFoto();
+                    String descripcion = puntoDao.findOne(idp).getDescripcion();
+                    Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
+                    punto.setId(idp);
+                    puntos.add(punto);
+                }
+            }
+            //Asignamos los puntos de la ruta a la ruta
+            ruta.setPuntos(puntos);
+
+            return ruta;
+        }
+        catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     /**
      * FUNCIONA
-     * @param id
+     * @param idRuta
      * @return Mensaje
      */
     @RequestMapping(value = "/devolverRutaSimple", method = RequestMethod.GET)
-    public Mensaje devolverSimple(int id){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
-        try{
+    @ResponseBody
+    public Ruta devolverSimple(Integer idRuta) throws BadRequestException{
+        try {
             //Buscamos la ruta por su id
-            //ruta.setPuntos(null);
-            mens = new Mensaje(200, service.findOne(id));
+            return service.findOne(idRuta);
 
-        }catch(Exception ex) {}
-
-        return mens;
+        } catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     /**
@@ -107,86 +154,75 @@ public class RutaController {
      * @return Mensaje
      */
     @RequestMapping(value = "/devolverRutas", method = RequestMethod.GET)
-    public Mensaje devolverTodas(){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
+    @ResponseBody
+    public Iterable<Ruta> devolverTodas() throws BadRequestException{
         try{
 
             //Devolvemos todas
-            mens = new Mensaje(200, service.findAll());
+            return service.findAll();
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value = "/devolverRutasPorNivel", method = RequestMethod.GET)
-    public Mensaje devolverRutasPorNivel(int nivel){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
+    @ResponseBody
+    public Iterable<Ruta> devolverRutasPorNivel(Integer nivel) throws BadRequestException{
         try{
-
             //Buscamos las rutas por su nivel
-            mens = new Mensaje(200, service.findByNivel(nivel));
+            return service.findByNivel(nivel);
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value = "/devolverRutasPorValoracion", method = RequestMethod.GET)
-    public Mensaje devolverRutasPorValoracion(int valoracion){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
+    @ResponseBody
+    public Iterable<Ruta> devolverRutasPorValoracion(Integer valoracion) throws BadRequestException{
         try{
-
             //Buscamos la ruta por su valoración
-            mens = new Mensaje(200, service.findByValoracion(valoracion));
+            return service.findByValoracion(valoracion);
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value = "/devolverRutasPorPoblacion", method = RequestMethod.GET)
-    public Mensaje devolverRutasPorPoblacion(String poblacion){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
+    @ResponseBody
+    public Iterable<Ruta> devolverRutasPorPoblacion(String poblacion) throws BadRequestException{
         try{
-
             //Paso 2 - Buscamos la ruta por su población
-            mens = new Mensaje(200, service.findByPoblacion(poblacion));
+            return service.findByPoblacion(poblacion);
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value = "/devolverRutasPorCodPostal", method = RequestMethod.GET)
-    public Mensaje devolverRutasPorCodPostal(String codPostal){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
+    @ResponseBody
+    public Iterable<Ruta> devolverRutasPorCodPostal(String codPostal) throws BadRequestException{
         try{
-
             //Buscamos la ruta por su código postal
-            mens = new Mensaje(200, service.findByCodPostal(codPostal));
+            return service.findByCodPostal(codPostal);
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 
     @RequestMapping(value = "/devolverRutasPorUsuario", method = RequestMethod.GET)
-    public Mensaje devolverRutasPorUsuario(String usuario){
-        Mensaje mens=new Mensaje(401, "Error en los parámetros");
-
+    @ResponseBody
+    public Iterable<Ruta> devolverRutasPorUsuario(String usuario) throws BadRequestException{
         try{
-
             //Buscamos la ruta por su usuario
-            mens = new Mensaje(200, service.findByUsuario(usuario));
+            return service.findByUsuario(usuario);
 
-        }catch(Exception ex) {}
-
-        return mens;
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
     }
 }

@@ -6,6 +6,7 @@ import hello.api.punto.RutaHasPunto;
 import hello.api.usuario.User;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -27,7 +28,8 @@ public class Ruta {
     private String fk_poblacion;
     private String fk_usuario;
 
-
+    private ArrayList<Punto> puntos;
+    
     public Ruta(){
 
     }
@@ -105,6 +107,14 @@ public class Ruta {
 
     public void setFk_usuario(String fk_usuario) {
         this.fk_usuario = fk_usuario;
+    }
+
+    public ArrayList<Punto> getPuntos() {
+        return puntos;
+    }
+
+    public void setPuntos(ArrayList<Punto> puntos) {
+        this.puntos = puntos;
     }
 
 }
