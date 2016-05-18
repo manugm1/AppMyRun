@@ -3,6 +3,7 @@ package hello.api.usuario;
  * Created by Javier on 21/04/2016.
  */
 
+import javax.persistence.Embeddable;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -17,6 +18,7 @@ import java.sql.Timestamp;
  * @author netgloo
  */
 
+@Embeddable
 @Entity
 @Table(name = "usuario")
 public class User {

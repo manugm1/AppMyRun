@@ -12,6 +12,7 @@ import java.util.List;
  * Clase modelo de ruta
  * Created by manuelgm on 04/05/2016.
  */
+@Embeddable
 @Entity
 @Table(name = "ruta")
 public class Ruta {

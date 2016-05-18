@@ -19,6 +19,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return handle(exception, "Invalid access.", new HttpHeaders(), HttpStatus.UNAUTHORIZED);
     }
 
+    @ExceptionHandler(value = DataBaseException.class)
+    public ResponseEntity<Object> handleDataBaseException(DataBaseException exception) {
+        return handle(exception, "Conflicto en la Base de datos.", new HttpHeaders(), HttpStatus.CONFLICT);
+    }
+
     @ExceptionHandler
     public ResponseEntity<Object> handle(Exception ex, Object body, HttpHeaders headers, HttpStatus status) {
         return new ResponseEntity<Object>(body, headers, status);
