@@ -5,12 +5,15 @@ import hello.api.exceptions.UnauthorizedException;
 import hello.api.punto.PuntoDao;
 import hello.api.ruta.Ruta;
 import hello.api.ruta.RutaRepository;
+import hello.api.usuario.User;
 import hello.api.usuario.UserService;
 import hello.lib.Mensaje;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.ArrayList;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
 
@@ -57,6 +60,76 @@ public class UsuarioRealizaRutaController
         }
 
         return mens;
+    }
+
+
+
+    @RequestMapping(value = "/rutasRecorridasPorUser")
+    @ResponseBody
+    public ArrayList<Ruta> dameRutasRecorridas(String email, String pass)
+    {
+        User usuario= userDao.findOne(email);
+        ArrayList<Ruta> rutas=new ArrayList<Ruta>();
+
+        if(userDao.verifyUser(email, pass))
+        {
+           ArrayList<UsuarioRealizaRuta> urrList= (ArrayList)urrDao.findAll();
+
+            for(int i=0;i<urrList.size();i++)
+            {
+
+                if(email.equals(urrList.get(i).getPk().getUsuario().getEmail()))
+                {
+                    Ruta ruta=new Ruta();
+                    Ruta aux=urrList.get(i).getPk().getRuta();
+
+                    ruta.setDescripcion(aux.getDescripcion());
+                    ruta.setDificultad(aux.getDificultad());
+                    ruta.setFk_poblacion(aux.getFk_poblacion());
+                    ruta.setFk_usuario(aux.getFk_usuario());
+                    ruta.setId(aux.getId());
+                    ruta.setNombre(aux.getNombre());
+                    ruta.setTipo(aux.getTipo());
+                    ruta.setPopularidad(aux.getPopularidad());
+
+
+
+                    if(!rutas.contains(ruta)) {
+                        rutas.add(ruta);
+                    }
+
+                }
+            }
+        }
+
+        return rutas;
+
+    }
+
+
+    @RequestMapping(value = "/dameUsuarioRealizaRuta")
+    @ResponseBody
+    public ArrayList<URRSimple> dameUsuarioRealizaRuta()
+    {
+
+            ArrayList<UsuarioRealizaRuta> aux= (ArrayList)urrDao.findAll();
+            ArrayList<URRSimple> urrList=new ArrayList<URRSimple>();
+
+            for(int i=0;i<aux.size();i++)
+            {
+                URRSimple urr=new URRSimple();
+                UsuarioRealizaRuta urrAux=aux.get(i);
+
+                urr.setEmail(urrAux.getPk().getUsuario().getEmail());
+                urr.setIdPunto(urrAux.getPk().getPunto().getId());
+                urr.setIdRuta(urrAux.getPk().getRuta().getId());
+                urr.setFoto(urrAux.getFoto());
+                urr.setComentario(urrAux.getComentario());
+                urr.setTiempo(urrAux.getTiempo());
+                urrList.add(urr);
+            }
+           return urrList;
+
     }
 
     @Autowired

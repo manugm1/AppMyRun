@@ -107,6 +107,81 @@ public class PuntoController
         }
     }
 
+
+    @RequestMapping(value = "/crearPunto",method = POST)
+    @ResponseBody
+    public void crearPunto(String nombre, String descripcion, String foto, Float coordx, Float coordy) throws BadRequestException, OKException {
+        try {
+
+                    Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
+                    puntoDao.save(punto);
+
+                    throw new OKException("Punto introducido correctamente.");
+
+        }
+        //Aquí capturamos y enviamos
+        catch(OKException ex){
+            throw new OKException(ex.getMessage());
+        }
+        //Para cualquier otra excepción, supondremos que se debe a error de cliente producidos en los parámetros en vez de mostrar
+        //el ex.getMessage() ya que la excepción podría darse por ejemplo si se viola la integridad en los
+        //objetos many to many. Pero esto también es un error provocado en la petición, así nos aseguramos
+        //siempre que el error en la invocación es provocado por el cliente.
+        //Se ignoran errores propios de servidor como el acceso a la base de datos, etc.
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
+    }
+
+
+    @RequestMapping(value = "/asignarPuntoSimple",method = POST)
+    @ResponseBody
+    public void asignarSimple(Integer idRuta, Integer idPunto, String email, String password) throws UnauthorizedException, BadRequestException, OKException {
+        try {
+            User usuario = userDao.findOne(email);
+            if (usuario.getPassword().equals(password)) {
+
+                Ruta ruta = rutaService.findOne(idRuta);
+                if (ruta.getFk_usuario().equals(email)) {
+                    Punto punto = puntoDao.findOne(idPunto);
+
+                    RutaHasPunto rutahaspunto = new RutaHasPunto();
+                    rutahaspunto.setPunto(punto);
+                    rutahaspunto.setRuta(ruta);
+
+                    PuntoRuta pr = new PuntoRuta();
+                    pr.setPk(rutahaspunto);
+
+                    puntoRutaDao.save(pr);
+
+                    throw new OKException("Punto relacionado correctamente.");
+                } else {
+                    throw new UnauthorizedException("El usuario no es dueño de la ruta.");
+                }
+            } else {
+                throw new BadRequestException("Error en los parámetros del usuario.");
+            }
+        }
+        //Aquí capturamos y enviamos
+        catch(OKException ex){
+            throw new OKException(ex.getMessage());
+        }
+        catch(UnauthorizedException ex){
+            throw new UnauthorizedException(ex.getMessage());
+        }
+        catch(BadRequestException ex){
+            throw new BadRequestException(ex.getMessage());
+        }
+        //Para cualquier otra excepción, supondremos que se debe a error de cliente producidos en los parámetros en vez de mostrar
+        //el ex.getMessage() ya que la excepción podría darse por ejemplo si se viola la integridad en los
+        //objetos many to many. Pero esto también es un error provocado en la petición, así nos aseguramos
+        //siempre que el error en la invocación es provocado por el cliente.
+        //Se ignoran errores propios de servidor como el acceso a la base de datos, etc.
+        catch(Exception ex){
+            throw new BadRequestException("Error en los parámetros.");
+        }
+    }
+
     @Autowired
     private UserService userDao;
 

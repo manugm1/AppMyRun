@@ -117,4 +117,22 @@ public class Ruta {
         this.puntos = puntos;
     }
 
+
+    public boolean equals (Object obj) {
+
+        if (obj instanceof Ruta) {
+
+            Ruta tmpRuta = (Ruta) obj;
+
+            if (this.id==tmpRuta.id)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+
+        }  else { return false; }
+    }
 }
