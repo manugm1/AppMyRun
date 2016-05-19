@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 
 import static org.springframework.web.bind.annotation.RequestMethod.POST;
@@ -47,7 +48,10 @@ public class UsuarioRealizaRutaController
 
             urr.setComentario(coment);
             urr.setFoto(foto);
+            java.util.Date date= new java.util.Date();
+            urr.setTiempo(new Timestamp(date.getTime()));
             urr.setPk(pk);
+
 
             urrDao.save(urr);
             mens.setCodigo(200);
