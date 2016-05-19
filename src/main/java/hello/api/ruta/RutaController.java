@@ -156,7 +156,24 @@ public class RutaController {
      */
     @RequestMapping(value = "/devolverRutas", method = RequestMethod.GET)
     @ResponseBody
-    public ArrayList<Ruta> devolverTodas() throws BadRequestException{
+    public Iterable<Ruta>  devolverTodas() throws BadRequestException{
+        try{
+            //Devolvemos todas
+            return service.findAll();
+
+        }catch(Exception ex) {
+            throw new BadRequestException("Error en los parámetros.");
+        }
+    }
+
+
+    /**
+     * FUNCIONA
+     * @return Mensaje
+     */
+    @RequestMapping(value = "/devolverRutasCompletas", method = RequestMethod.GET)
+    @ResponseBody
+    public ArrayList<Ruta> devolverTodasCompletas() throws BadRequestException{
         try{
             ArrayList<Ruta> todas = (ArrayList) service.findAll();
 
