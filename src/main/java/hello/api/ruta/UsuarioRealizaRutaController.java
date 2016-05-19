@@ -1,10 +1,7 @@
-package hello.api.opiniones;
+package hello.api.ruta;
 
 import hello.api.exceptions.DataBaseException;
-import hello.api.exceptions.UnauthorizedException;
 import hello.api.punto.PuntoDao;
-import hello.api.ruta.Ruta;
-import hello.api.ruta.RutaRepository;
 import hello.api.usuario.User;
 import hello.api.usuario.UserService;
 import hello.lib.Mensaje;

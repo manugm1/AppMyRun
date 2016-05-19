@@ -1,4 +1,4 @@
-package hello.api.opiniones;
+package hello.api.ruta;
 
 import hello.api.punto.Punto;
 import hello.api.ruta.Ruta;

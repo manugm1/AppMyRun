@@ -13,6 +13,7 @@ import hello.lib.Validaciones;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 /**
@@ -155,11 +156,37 @@ public class RutaController {
      */
     @RequestMapping(value = "/devolverRutas", method = RequestMethod.GET)
     @ResponseBody
-    public Iterable<Ruta> devolverTodas() throws BadRequestException{
+    public ArrayList<Ruta> devolverTodas() throws BadRequestException{
         try{
+            ArrayList<Ruta> todas = (ArrayList) service.findAll();
+
+            for(int i = 0; i< todas.size(); i++){
+                //Buscamos los puntos que tiene (ESTO DEBERÍA SER AUTOCARGADO AL HACER EL findOne)
+                ArrayList<PuntoRuta> pr = (ArrayList) puntoRutaDao.findAll();
+                ArrayList<Punto> puntos = new ArrayList<Punto>();
+
+                for (int j = 0; j < pr.size(); j++) {
+                    int idr = pr.get(j).getPk().getRuta().getId();
+                    int idp = pr.get(j).getPk().getPunto().getId();
+
+                    if (idr == todas.get(i).getId()) {
+                        Float coordx = puntoDao.findOne(idp).getCoordx();
+                        Float coordy = puntoDao.findOne(idp).getCoordy();
+                        String nombre = puntoDao.findOne(idp).getNombre();
+                        String foto = puntoDao.findOne(idp).getFoto();
+                        String descripcion = puntoDao.findOne(idp).getDescripcion();
+                        Punto punto = new Punto(coordx, coordy, nombre, foto, descripcion);
+                        punto.setId(idp);
+                        puntos.add(punto);
+                    }
+                }
+                //Asignamos los puntos de la ruta a la ruta
+                todas.get(i).setPuntos(puntos);
+            }
+
 
             //Devolvemos todas
-            return service.findAll();
+            return todas;
 
         }catch(Exception ex) {
             throw new BadRequestException("Error en los parámetros.");

@@ -1,4 +1,4 @@
-package hello.api.opiniones;
+package hello.api.ruta;
 
 import org.springframework.data.repository.CrudRepository;
 
