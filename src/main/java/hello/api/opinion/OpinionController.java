@@ -90,7 +90,7 @@ public class OpinionController {
                 {
                     Opinion aux=ops.get(i);
                     OpinionSimple op =new OpinionSimple();
-                    
+
                     op.setEmail(aux.getPk().getUsuario().getEmail());
                     op.setIdRuta(aux.getPk().getRuta().getId());
                     op.setId(aux.getPk().getId());
